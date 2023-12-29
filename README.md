@@ -18,9 +18,10 @@ It has been tested with a `for` loop to easily handle more than 100 communicatio
 1. Install `zustand` and `broadcast-channel`
 
 
-2. Copy the file somewhere inside your project (such as `store/storage1.ts`)
+2. Copy the file `storage1.ts` somewhere inside your project (such as `store/cart.ts`)\
+   You can also make more copies for extra storages such as `store/chat.ts`, `store/token.ts`, etc
 
-3. Customize its related parts (especially `valInit`, `valType` and `name`)
+4. Customize its related parts (especially `valInit`, `valType` and `name`)
 
 
 
@@ -28,16 +29,21 @@ It has been tested with a `for` loop to easily handle more than 100 communicatio
 1. Import the file(s) anywhere into your script(s):
 
 ``` Javascript
-import { useStoreGet, useStoreSet } from "./store/storage1.ts"
+import { useStoreGet, useStoreSet } from "./store/cart.ts"
+
+// Or if you have multiple storages:
+import * as cart from "./store/cart.ts"
 ```
 
 
-2. Get a value from inside any hook/component and make it render the hook/component after every state update:
+2. Get a value from inside any hook/component and make it render the hook/component after every related state update:
 
 ``` Javascript
-const count = useStoreGet()
+const data = useStoreGet()
+// Or:
+const data = cart.useStoreGet()
 
-return <div>Count is: {count}</div>
+return <div>Cart data is: {data}</div>
 ```
 
 
@@ -45,9 +51,13 @@ return <div>Count is: {count}</div>
 
 ``` Javascript
 const [setVal, increase, decrease, reset] = useStoreSet()
+// Or:
+const [setVal, increase, decrease, reset] = cart.useStoreSet()
 
 // To use only the main setter:
 const [setVal] = useStoreSet()
+// Or:
+const [setVal] = cart.useStoreSet()
 
 return <button onClick={() => setVal(parseInt(prompt("Enter new value:")))}>Enter</button>
 ```
