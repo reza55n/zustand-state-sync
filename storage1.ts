@@ -3,6 +3,8 @@ import { persist, PersistStorage } from "zustand/middleware"
 import { shallow } from "zustand/shallow"
 import { BroadcastChannel, createLeaderElection } from 'broadcast-channel'
 
+// https://github.com/reza55n/zustand-state-sync
+// Updated on 2023-12-30
 
 // #############################################################################
 
@@ -17,15 +19,15 @@ const name = "storage1"
 // ...sessionStorage with some prefixes
 
 // Also you can find and customize/add/remove the methods `increase`, ...
-// ...`decrease` and `reset`. !! IMPORTANT: Don't forget to set ...
-// ...`doPost` to `true` for the methods (except for setVal).
+// ...`decrease` and `reset`. !! IMPORTANT: Don't forget to keep ...
+// ...`doPost: true` for the methods (except for setVal).
 
 const verbose = false
-// true: Logs are displayed
+// `true`: Logs are displayed. Default: `false`
 
 const secure = true
 // In modes other than native, sends an empty message shortly after it's ...
-// ...been received
+// ...been received. Default: `true`
 
 // #############################################################################
 
@@ -95,6 +97,8 @@ channel.onmessage = async msg => {
   }
 }
 
+
+// Zustand definitions
 
 interface BearState {
   val: valType
