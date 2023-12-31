@@ -23,7 +23,7 @@ const name = "storage1"
 // ...`doPost: true` for the methods (except for setVal).
 
 const sync = true
-// `true` (default): Sync across the tabs
+// `true` (default): Sync across the tabs and persistent on refresh
 
 const verbose = false
 // `true`: Logs are displayed. Default: `false`
