@@ -122,7 +122,8 @@ if (sync) {
     waitingForState = false
   } else {
     log('Another tab and leader exists')
-    channel.postMessage("ask_leader_for_state")
+    setTimeout(() => {channel.postMessage("ask_leader_for_state")}, 50);
+      // setTimeout to make sure to be initialized when the message received
     waitingForState = true
   }
   elector.awaitLeadership().then(() => {
