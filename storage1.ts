@@ -4,7 +4,7 @@ import { shallow } from "zustand/shallow"
 import { BroadcastChannel, createLeaderElection } from 'broadcast-channel'
 
 // https://github.com/reza55n/zustand-state-sync
-// Updated on 2023-12-30
+// Updated on 2023-12-31
 
 // #############################################################################
 
@@ -22,12 +22,15 @@ const name = "storage1"
 // ...`decrease` and `reset`. !! IMPORTANT: Don't forget to keep ...
 // ...`doPost: true` for the methods (except for setVal).
 
+const sync = true
+// `true` (default): Sync across the tabs
+
 const verbose = false
 // `true`: Logs are displayed. Default: `false`
 
 const secure = true
-// In modes other than native, sends an empty message shortly after it's ...
-// ...been received. Default: `true`
+// `true` (default): In modes other than native, sends an empty message ...
+// shortly after it's been received.
 
 // #############################################################################
 
@@ -46,54 +49,56 @@ const debounce = (func, timeout = 300) => {
 
 // Channel initialization
 
-var channel = new BroadcastChannel(name)
-if (channel.type === "idb") // It's not secure nor efficient
-  channel = new BroadcastChannel(name, {type: "localstorage"})
-log (`Broadcast channel '${name}' initialized with type of ${channel.type}`)
-
-const clearMessageDebounced = debounce(() => channel.type !== "native" && secure &&
-  channel.postMessage(""), 1000)
-
-const elector = createLeaderElection(channel)
-var imLeader = await elector.hasLeader()
-imLeader = !imLeader
-var waitingForState
-if (imLeader) {
-  log("I'm the leader")
-  waitingForState = false
-} else {
-  log('Another tab and leader exists')
-  channel.postMessage("ask_leader_for_state")
-  waitingForState = true
-}
-elector.awaitLeadership().then(() => {
-  log("I'm the leader now")
-  imLeader = true
-})
-
-channel.onmessage = async msg => {
-  if (verbose)
-    console.log(`### NEW MESSAGE, Am I leader? ` + imLeader + ", message: ", msg)
+if (sync) {
+  var channel = new BroadcastChannel(name)
+  if (channel.type === "idb") // It's not secure nor efficient
+    channel = new BroadcastChannel(name, {type: "localstorage"})
+  log (`Broadcast channel '${name}' initialized with type of ${channel.type}`)
   
-  if (msg) { // To prevent infinite loop
-    if (msg === "ask_leader_for_state") {
-      if (imLeader) {
-        log("Re-sending the values for the new tab.......")
-        var states = useStore.getState()
-        states.setVal(states.val)
-      }
-      return
-    }
+  const clearMessageDebounced = debounce(() => channel.type !== "native" && secure &&
+    channel.postMessage(""), 1000)
+  
+  const elector = createLeaderElection(channel)
+  var imLeader = await elector.hasLeader()
+  imLeader = !imLeader
+  var waitingForState
+  if (imLeader) {
+    log("I'm the leader")
+    waitingForState = false
+  } else {
+    log('Another tab and leader exists')
+    channel.postMessage("ask_leader_for_state")
+    waitingForState = true
+  }
+  elector.awaitLeadership().then(() => {
+    log("I'm the leader now")
+    imLeader = true
+  })
+
+  channel.onmessage = async msg => {
+    if (verbose)
+      console.log(`### NEW MESSAGE, Am I leader? ` + imLeader + ", message: ", msg)
     
-    if (msg?.num !== undefined) {
-      var msgJ = JSON.parse(msg.num)
-      var valll = msgJ?.state?.val
-      if (valll !== undefined) {
-        waitingForState = false
-        useStore.getState().setVal(valll, false)
+    if (msg) { // To prevent infinite loop
+      if (msg === "ask_leader_for_state") {
+        if (imLeader) {
+          log("Re-sending the values for the new tab.......")
+          var states = useStore.getState()
+          states.setVal(states.val)
+        }
+        return
       }
+      
+      if (msg?.num !== undefined) {
+        var msgJ = JSON.parse(msg.num)
+        var valll = msgJ?.state?.val
+        if (valll !== undefined) {
+          waitingForState = false
+          useStore.getState().setVal(valll, false)
+        }
+      }
+      clearMessageDebounced()
     }
-    clearMessageDebounced()
   }
 }
 
@@ -121,7 +126,7 @@ const storage: PersistStorage<BearState> = {
     
     const newValueStr = JSON.stringify(newValue)
     sessionStorage[key] = newValueStr
-    if (newValue.state.doPost === true) {
+    if (sync && newValue.state.doPost === true) {
       log("Setter not from broadcast. Posting.......")
       channel.postMessage({num: newValueStr})
     } else
