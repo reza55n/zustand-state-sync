@@ -46,6 +46,8 @@ const debounce = (func, timeout = 300) => {
   }
 }
 
+const storeName = `zustand-${name}`
+
 
 // Channel initialization
 
@@ -100,6 +102,8 @@ if (sync) {
       clearMessageDebounced()
     }
   }
+} else {
+  delete sessionStorage[storeName]
 }
 
 
@@ -121,7 +125,7 @@ const storage: PersistStorage<BearState> = {
     return JSON.parse(str)
   },
   setItem: (key, newValue) => {
-    if (waitingForState)
+    if (!sync || waitingForState)
       return
     
     const newValueStr = JSON.stringify(newValue)
@@ -152,7 +156,7 @@ export const useStore = create<BearState>()(
       decrease: () => set((state) => ({ val: state.val - 1, doPost: true })),
       reset: () => set({ val: valInit, doPost: true }),
     }),
-    { name: `zustand-${name}`, storage }
+    { name: storeName, storage }
   )
 )
 
