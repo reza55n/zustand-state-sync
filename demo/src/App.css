@@ -30,7 +30,7 @@ button:hover {
     border-color: #0a58ca;
 }
 
-#root {
+#container {
   display: flex;
   justify-content: center;
   gap: 16px;
