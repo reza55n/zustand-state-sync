@@ -125,7 +125,7 @@ const storage: PersistStorage<BearState> = {
     return JSON.parse(str)
   },
   setItem: (key, newValue) => {
-    if (!sync || waitingForState)
+    if (sync && waitingForState)
       return
     
     const newValueStr = JSON.stringify(newValue)
@@ -134,7 +134,7 @@ const storage: PersistStorage<BearState> = {
       log("Setter not from broadcast. Posting.......")
       channel.postMessage({num: newValueStr})
     } else
-      log("Setter from broadcast, not posting.")
+      log("Sync is off or setter from broadcast, not posting.")
   },
   removeItem: (key): void => {
     delete sessionStorage[key]
