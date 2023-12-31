@@ -21,7 +21,7 @@ It has been tested with a `for` loop to easily handle more than 100 communicatio
 2. Copy the file `storage1.ts` somewhere inside your project (such as `store/cart.ts`)\
    You can also make more copies for extra storages such as `store/chat.ts`, `store/token.ts`, etc
 
-4. Customize its related parts (especially `valInit`, `valType` and `name`)
+4. Customize its related parts (especially `name`, `valInit` and `valType`)
 
 
 
