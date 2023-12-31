@@ -8,15 +8,15 @@ import { BroadcastChannel, createLeaderElection } from 'broadcast-channel'
 
 // #############################################################################
 
+const name = "storage1"
+// Must be unique in the project to make the broadcast functioning. Will be ...
+// ...named in localStorage and sessionStorage with some prefixes
+
 const valInit = 0
 
 type valType = number
 // Can be primitive or any mixtures of array/object/primitive
 // (You can set `any`)
-
-const name = "storage1"
-// Must be unique in the project. Will be named in localStorage and ...
-// ...sessionStorage with some prefixes
 
 // Also you can find and customize/add/remove the methods `increase`, ...
 // ...`decrease` and `reset`. !! IMPORTANT: Don't forget to keep ...
