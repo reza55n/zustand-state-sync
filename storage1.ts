@@ -108,7 +108,7 @@ if (sync) {
 interface BearState {
   val: valType
   doPost: boolean
-  setVal: (val: valType, doPost?: boolean) => void
+  setVal: (val: valType | Function, doPost?: boolean) => void
   increase: () => void
   decrease: () => void
   reset: () => void
@@ -142,7 +142,12 @@ export const useStore = create<BearState>()(
     (set, get) => ({
       val: valInit,
       doPost: true,
-      setVal: (val, doPost = true) => set({ val: val, doPost }),
+      setVal: (val, doPost = true) => {
+        if (typeof val === 'function')
+          set({ val: val(get().val), doPost })
+        else
+          set({ val: val, doPost })
+      },
       increase: () => set((state) => ({ val: state.val + 1, doPost: true })),
       decrease: () => set((state) => ({ val: state.val - 1, doPost: true })),
       reset: () => set({ val: valInit, doPost: true }),

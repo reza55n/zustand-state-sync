@@ -61,3 +61,10 @@ const [setVal] = cart.useStoreSet()
 
 return <button onClick={() => setVal(parseInt(prompt("Enter new value:")))}>Enter</button>
 ```
+
+
+You can also use a setter function, again without rendering the parent hook/component:
+
+``` Javascript
+return <button onClick={() => setVal((prev) => prev + 5)}>Increase by 5</button>
+```
