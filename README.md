@@ -50,9 +50,9 @@ return <div>Cart data is: {data}</div>
 3. Set a value from inside any hook/component without rendering it:
 
 ``` Javascript
-const [setVal, increase, decrease, reset] = useStoreSet()
+const [setVal, reset, increase, decrease] = useStoreSet()
 // Or:
-const [setVal, increase, decrease, reset] = cart.useStoreSet()
+const [setVal, reset, increase, decrease] = cart.useStoreSet()
 
 // To use only the main setter:
 const [setVal] = useStoreSet()

@@ -18,8 +18,8 @@ type valType = number
 // Can be primitive or any mixtures of array/object/primitive
 // (You can set `any`)
 
-// Also you can find and customize/add/remove the methods `increase`, ...
-// ...`decrease` and `reset`. !! IMPORTANT: Don't forget to keep ...
+// Also you can find and customize/add/remove the methods `reset`, ...
+// ...`increase` and `decrease`. !! IMPORTANT: Don't forget to keep ...
 // ...`doPost: true` for the methods (except for setVal).
 
 const sync = true
@@ -114,9 +114,9 @@ interface BearState {
   val: valType
   doPost: boolean
   setVal: (val: valType | Function, doPost?: boolean) => void
+  reset: () => void
   increase: () => void
   decrease: () => void
-  reset: () => void
 }
 
 const storage: PersistStorage<BearState> = {
@@ -149,20 +149,20 @@ export const useStore = create<BearState>()(
       doPost: true,
       setVal: (val, doPost = true) => {
         if (typeof val === 'function')
-          set({ val: val(get().val), doPost })
+          set({ val: val(get().val), doPost: true })
         else
-          set({ val: val, doPost })
+          set({ val: val, doPost }) // Used in broadcasting
       },
+      reset: () => set({ val: valInit, doPost: true }),
       increase: () => set((state) => ({ val: state.val + 1, doPost: true })),
       decrease: () => set((state) => ({ val: state.val - 1, doPost: true })),
-      reset: () => set({ val: valInit, doPost: true }),
     }),
     { name: storeName, storage }
   )
 )
 
 export const useStoreSet = () => useStore(
-  (state) => [state.setVal, state.increase, state.decrease, state.reset],
+  (state) => [state.setVal, state.reset, state.increase, state.decrease],
   shallow
 )
 

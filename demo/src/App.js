@@ -48,8 +48,8 @@ const Store2Set = () => {
 }
 
 function App() {
-  const [setVal, increase, decrease] = s1.useStoreSet()
-  const [setLog, resetLog] = log.useStoreSet()
+  const [setVal, , increase, decrease] = s1.useStoreSet()
+  const [, resetLog] = log.useStoreSet()
   useLogAdd("App rendered")
   return (
     <>
