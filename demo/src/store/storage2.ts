@@ -4,7 +4,7 @@ import { shallow } from "zustand/shallow"
 import { BroadcastChannel, createLeaderElection } from 'broadcast-channel'
 
 // https://github.com/reza55n/zustand-state-sync
-// Updated on 2023-12-31
+// Updated on 2024-01-02
 
 // #############################################################################
 
