@@ -14,7 +14,7 @@ const verbose = true
 const useLogAdd = (msg) => {
   const [setLog] = log.useStoreSet()
   if (verbose) {
-    setLog((prev) => [...prev, msg])
+    setTimeout(() => setLog((prev) => [...prev, msg]), 0)
   }
 }
 
