@@ -8,6 +8,8 @@ import * as log from "./store/log.ts"
 
 import Comp from './Comp.jsx'
 
+const isS1Local = (s1.info.baseStorage == localStorage)
+
 const divv = {marginTop: "4px", marginBottom: "4px", fontWeight: "bold", color:"rgb(0, 75, 185)"}
 
 const verbose = true
@@ -56,11 +58,19 @@ function App() {
       <h1>Zustand State Sync - Demo</h1>
       <div id="container">
         <div className="App">
+          <h2>Current mode:
+            {isS1Local ? " Remember" : " Session"}
+          </h2>
           <div style={{display: "flex", justifyContent: "center", alignItems: "center", gap: "8px"}}>
             <a className="button" target="_blank" href="https://github.com/reza55n/zustand-state-sync">GitHub</a>
             <button style={{fontSize: "82%"}} className="button" onClick={() => {
               window.open(".", "_blank")
             }}>+ New tab</button>
+            <button style={{fontSize: "82%"}} className="button" onClick={() => {
+              s1.switchBaseStorage((isS1Local ? "sessionStorage" : "localStorage"), true)
+            }}>
+              {"Switch to " + (isS1Local ? "session" : "remember")}
+            </button>
           </div>
           <hr/>
           <h2>storage1 (number)</h2>

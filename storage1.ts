@@ -4,7 +4,7 @@ import { shallow } from "zustand/shallow"
 import { BroadcastChannel, createLeaderElection } from 'broadcast-channel'
 
 // https://github.com/reza55n/zustand-state-sync
-// Updated on 2024-01-02
+// Updated on 2024-05-18
 
 // #############################################################################
 
@@ -22,6 +22,9 @@ type valType = number
 // ...`increase` and `decrease`. !! IMPORTANT: Don't forget to keep ...
 // ...`doPost: true` for the methods (except for setVal).
 
+const baseStorageDefault = localStorage
+// Use case for localStorage: User's shopping cart
+
 const sync = true
 // `true` (default): Sync across the tabs and persistent on refresh
 
@@ -30,7 +33,8 @@ const verbose = false
 
 const secure = true
 // `true` (default): In modes other than native, sends an empty message ...
-// shortly after it's been received.
+// shortly after it's been received. BTW it may not work when only one tab ...
+// is open.
 
 // #############################################################################
 
@@ -48,6 +52,26 @@ const debounce = (func, timeout = 300) => {
 
 const storeName = `zustand-${name}`
 
+// Always checked from localStorage
+const storeModeName = `zustand-${name}-mode`
+
+var baseStorage: Storage
+
+const initBaseStorage = () => {
+  if (localStorage[storeModeName] === undefined) {
+    baseStorage = baseStorageDefault
+  } else if (localStorage[storeModeName] == "localStorage") {
+    baseStorage = localStorage
+  } else if (localStorage[storeModeName] == "sessionStorage") {
+    baseStorage = sessionStorage
+  } else {
+    console.log(`WARNING: Invalid storeModeName in localStorage (${localStorage[storeModeName]}). Using default.`)
+    baseStorage = baseStorageDefault
+  }
+}
+
+initBaseStorage()
+
 
 // Channel initialization
 
@@ -55,7 +79,10 @@ if (sync) {
   var channel = new BroadcastChannel(name)
   if (channel.type === "idb") // It's not secure nor efficient
     channel = new BroadcastChannel(name, {type: "localstorage"})
-  log (`Broadcast channel '${name}' initialized with type of ${channel.type}`)
+  log (`Broadcast channel '${name}' initialized with type of ${channel.type} and storage of ` +
+    (baseStorage == localStorage ? "localStorage" :
+      (baseStorage == sessionStorage ? "sessionStorage" : "UNKNOWN"))
+  )
   
   const clearMessageDebounced = debounce(() => channel.type !== "native" && secure &&
     channel.postMessage(""), 1000)
@@ -104,7 +131,7 @@ if (sync) {
     }
   }
 } else {
-  delete sessionStorage[storeName]
+  delete baseStorage[storeName]
 }
 
 
@@ -119,9 +146,11 @@ interface BearState {
   decrease: () => void
 }
 
+var initialized = false
+
 const storage: PersistStorage<BearState> = {
   getItem: (key) => {
-    const str = sessionStorage[key]
+    const str = baseStorage[key]
     if (!str) return null
     return JSON.parse(str)
   },
@@ -130,7 +159,12 @@ const storage: PersistStorage<BearState> = {
       return
     
     const newValueStr = JSON.stringify(newValue)
-    sessionStorage[key] = newValueStr
+    if (initialized && baseStorage[key] === undefined) {
+      log("Storage was changed from another tab. Switching baseStorage...")
+      initBaseStorage()
+    }
+    baseStorage[key] = newValueStr
+    initialized = true
     if (sync && newValue.state.doPost === true) {
       log("Setter not from broadcast. Posting.......")
       channel.postMessage({num: newValueStr})
@@ -138,7 +172,7 @@ const storage: PersistStorage<BearState> = {
       log("Sync is off or setter from broadcast, not posting.")
   },
   removeItem: (key): void => {
-    delete sessionStorage[key]
+    delete baseStorage[key]
   }
 }
 
@@ -167,3 +201,24 @@ export const useStoreSet = () => useStore(
 )
 
 export const useStoreGet = () => useStore((state) => state.val)
+
+export const switchBaseStorage = (
+      target: "localStorage" | "sessionStorage",
+      reload: boolean = false) => {
+  if (target == "sessionStorage") {
+    sessionStorage[storeName] = localStorage[storeName]
+    delete localStorage[storeName]
+  } else if (target == "localStorage") {
+    localStorage[storeName] = sessionStorage[storeName]
+    delete sessionStorage[storeName]
+  } else {
+    throw `Invalid target (${target}) for switchBaseStorage.`
+  }
+  
+  localStorage[storeModeName] = target
+  
+  if (reload)
+    window.location.reload()
+}
+
+export const info = {name, storeName, baseStorage}
