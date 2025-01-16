@@ -4,13 +4,13 @@ import { shallow } from "zustand/shallow"
 import { BroadcastChannel, createLeaderElection } from 'broadcast-channel'
 
 // https://github.com/reza55n/zustand-state-sync
-// Updated on 2024-05-18
+// Updated on 2025-01-16
 
 // #############################################################################
 
 const name = "storage1"
-// Must be unique in the project to make the broadcast functioning. Will be ...
-// ...named in localStorage and sessionStorage with some prefixes
+// Must be unique in the project to make the broadcast functioning. Will be
+// named in localStorage and sessionStorage with some prefixes
 
 const valInit = 0
 
@@ -18,12 +18,14 @@ type valType = number
 // Can be primitive or any mixtures of array/object/primitive
 // (You can set `any`)
 
-// Also you can find and customize/add/remove the methods `reset`, ...
-// ...`increase` and `decrease`. !! IMPORTANT: Don't forget to keep ...
-// ...`doPost: true` for the methods (except for setVal).
+// Also you can find and customize/add/remove the methods `reset`, `increase`
+// and `decrease`. !! IMPORTANT: Don't forget to keep `doPost: true` for the
+// methods (except for setVal).
 
-const baseStorageDefault = localStorage
-// Use case for localStorage: User's shopping cart
+const baseStorageDefault = sessionStorage
+// It must be `sessionStorage` (default) if sync is `false` and/or data is
+// important
+// Use case for `localStorage`: User's shopping cart
 
 const sync = true
 // `true` (default): Sync across the tabs and persistent on refresh
@@ -32,9 +34,8 @@ const verbose = false
 // `true`: Logs are displayed. Default: `false`
 
 const secure = true
-// `true` (default): In modes other than native, sends an empty message ...
-// shortly after it's been received. BTW it may not work when only one tab ...
-// is open.
+// `true` (default): In types other than native, sends an empty message shortly
+// after it's been received. BTW it may not work when only one tab is open.
 
 // #############################################################################
 
